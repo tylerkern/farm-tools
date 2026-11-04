@@ -39,7 +39,7 @@ const GRIDDER_PRESETS: GridderPreset[] = [
 ];
 
 function App() {
-  const [bedLength, setBedLength] = useState(100);
+  const [bedLength, setBedLength] = useState<string>("100");
   const [rows, setRows] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [plantSpacing, setPlantSpacing] = useState(10);
@@ -50,18 +50,21 @@ function App() {
   useState<PlantingPattern>("standard");
 
   const totalPlants = useMemo(() => {
+    const length = Number(bedLength);
+
     if (
-      !Number.isFinite(bedLength) ||
+      bedLength.trim() === "" ||
+      !Number.isFinite(length) ||
       !Number.isInteger(rows) ||
       !Number.isFinite(plantSpacing) ||
-      bedLength <= 0 ||
+      length <= 0 ||
       rows <= 0 ||
       plantSpacing <= 0
     ) {
       return 0;
     }
 
-    const bedLengthInches = bedLength * 12;
+    const bedLengthInches = length * 12;
     const plantsPerRow = Math.floor(
       bedLengthInches / plantSpacing
     );
@@ -72,6 +75,7 @@ function App() {
     ? Math.ceil(totalPositions / 2)
     : totalPositions;
   }, [bedLength, rows, plantSpacing, plantingPattern]);
+
 
   const handlePresetChange = (
     selectedPreset: GridderPreset
@@ -125,11 +129,7 @@ function App() {
     step="1"
     value={bedLength}
     onChange={(event) =>
-      setBedLength(
-        Number.isFinite(event.target.valueAsNumber)
-        ? Math.max(1, event.target.valueAsNumber)
-        : 1
-      )
+      setBedLength(event.target.value)
     }
     />
     <span>ft</span>
