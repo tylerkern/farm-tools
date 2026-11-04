@@ -1,13 +1,17 @@
+type PlantingPattern = "standard" | "offset";
+
 type PlantingPreviewProps = {
     rows: number;
     rowSpacing: number;
     plantSpacing: number;
+    pattern: PlantingPattern;
 };
 
 export default function PlantingPreview({
     rows,
     rowSpacing,
     plantSpacing,
+    pattern,
 }: PlantingPreviewProps) {
     const bedLength = 60;
     const bedWidth = 30;
@@ -44,14 +48,22 @@ export default function PlantingPreview({
     const startY =
     (previewHeight - totalRowHeight) / 2;
 
-    const plants = [];
+    const plants: { x: number; y: number }[] = [];
 
-    for (let rowIndex = 0; rowIndex < actualRowCount; rowIndex++) {
+    for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
         for (
             let plantIndex = 0;
         plantIndex < plantsPerRow;
         plantIndex++
         ) {
+            // Checkerboard planting pattern
+            if (
+                pattern === "offset" &&
+                (rowIndex + plantIndex) % 2 !== 0
+            ) {
+                continue;
+            }
+
             plants.push({
                 x: startX + plantIndex * plantStepX,
                 y: startY + rowIndex * rowStepY,
@@ -59,23 +71,27 @@ export default function PlantingPreview({
         }
     }
 
+
+
     return (
-        <div className="planting-preview">
+        <section className="preview-card">
         <div className="preview-header">
         <div>
-        <strong>Planting preview</strong>
+        <h2>Planting Preview</h2>
+        <p>30" bed × 60" preview section</p>
         </div>
 
-        <div className="preview-spacing">
+        <div className="preview-spacing-label">
         {rowSpacing}" rows × {plantSpacing}" plants
         </div>
         </div>
 
+        <div className="preview-wrapper">
         <svg
         viewBox={`0 0 ${previewWidth} ${previewHeight}`}
-        className="preview-svg"
+        className="planting-preview"
         role="img"
-        aria-label={`Planting pattern with ${rowSpacing} inch row spacing and ${plantSpacing} inch plant spacing`}
+        aria-label={`Planting preview with ${rows} rows`}
         >
         <rect
         x="0"
@@ -91,16 +107,18 @@ export default function PlantingPreview({
             key={index}
             cx={plant.x}
             cy={plant.y}
-            r="6"
+            r="7"
             className="plant-dot"
             />
         ))}
         </svg>
+        </div>
 
         <div className="preview-footer">
-        <span>{actualRowCount} rows</span>
-        <span>{plantsPerRow} plants per row</span>
+        <span>{rows} rows</span>
+        <span>{plantsPerRow} grid positions per row</span>
+        <span>{plants.length} plants in preview</span>
         </div>
-        </div>
+        </section>
     );
 }
