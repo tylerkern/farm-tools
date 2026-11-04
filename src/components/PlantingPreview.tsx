@@ -1,84 +1,106 @@
-
-interface PlantingPreviewProps {
-    rows: number
-    spacing: number
-}
+type PlantingPreviewProps = {
+    rows: number;
+    rowSpacing: number;
+    plantSpacing: number;
+};
 
 export default function PlantingPreview({
     rows,
-    spacing,
+    rowSpacing,
+    plantSpacing,
 }: PlantingPreviewProps) {
-    const bedLength = 60 // inches
-    const bedWidth = 30 // inches
+    const bedLength = 60;
+    const bedWidth = 30;
 
-    if (
-        !Number.isInteger(rows) ||
-        rows < 1 ||
-        rows > 20 ||
-        !Number.isFinite(spacing) ||
-        spacing <= 0
-    ) {
-        return <p>Enter valid planting dimensions.</p>
+    const previewWidth = 600;
+    const previewHeight = 300;
+
+    const scaleX = previewWidth / bedLength;
+    const scaleY = previewHeight / bedWidth;
+
+    const plantStepX = plantSpacing * scaleX;
+    const rowStepY = rowSpacing * scaleY;
+
+    const plantsPerRow = Math.max(
+        1,
+        Math.floor(bedLength / plantSpacing)
+    );
+
+    const actualRowCount = Math.max(1, rows);
+
+    const totalPlantWidth =
+    plantsPerRow > 1
+    ? (plantsPerRow - 1) * plantStepX
+    : 0;
+
+    const totalRowHeight =
+    actualRowCount > 1
+    ? (actualRowCount - 1) * rowStepY
+    : 0;
+
+    const startX =
+    (previewWidth - totalPlantWidth) / 2;
+
+    const startY =
+    (previewHeight - totalRowHeight) / 2;
+
+    const plants = [];
+
+    for (let rowIndex = 0; rowIndex < actualRowCount; rowIndex++) {
+        for (
+            let plantIndex = 0;
+        plantIndex < plantsPerRow;
+        plantIndex++
+        ) {
+            plants.push({
+                x: startX + plantIndex * plantStepX,
+                y: startY + rowIndex * rowStepY,
+            });
+        }
     }
-
-    const plantsPerRow = Math.floor(bedLength / spacing)
-
-    // One SVG unit per inch
-    const scale = 8
-    const padding = 20
-
-    const width = bedLength * scale + padding * 2
-    const height = bedWidth * scale + padding * 2
-
-    // Center the planting rows across the bed
-    const plantedWidth = (rows - 1) * spacing
-    const rowOffset = (bedWidth - plantedWidth) / 2
 
     return (
         <div className="planting-preview">
-        <h3>Planting Layout</h3>
-        <p>First 5 feet of a 30-inch bed</p>
+        <div className="preview-header">
+        <div>
+        <strong>Planting preview</strong>
+        </div>
+
+        <div className="preview-spacing">
+        {rowSpacing}" rows × {plantSpacing}" plants
+        </div>
+        </div>
 
         <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${previewWidth} ${previewHeight}`}
+        className="preview-svg"
         role="img"
-        aria-label={`${rows} rows with ${spacing} inch spacing`}
+        aria-label={`Planting pattern with ${rowSpacing} inch row spacing and ${plantSpacing} inch plant spacing`}
         >
         <rect
-        x={padding}
-        y={padding}
-        width={bedLength * scale}
-        height={bedWidth * scale}
-        rx="8"
-        fill="#e9dfce"
+        x="0"
+        y="0"
+        width={previewWidth}
+        height={previewHeight}
+        rx="12"
+        className="bed-background"
         />
 
-        {Array.from({ length: rows }, (_, row) =>
-        Array.from(
-            { length: plantsPerRow },
-            (_, col) => {
-                const x =
-                padding + (col + 0.5) * spacing * scale
-
-                const y =
-                padding +
-                (rowOffset + row * spacing) * scale
-
-                return (
-                    <circle
-                    key={`${row}-${col}`}
-                    cx={x}
-                    cy={y}
-                    r="5"
-                    fill="#4d9d42"
-                    />
-                )
-            },
-        ),
-        )}
+        {plants.map((plant, index) => (
+            <circle
+            key={index}
+            cx={plant.x}
+            cy={plant.y}
+            r="6"
+            className="plant-dot"
+            />
+        ))}
         </svg>
 
-        <p>{plantsPerRow * rows} plants in this section</p>
+        <div className="preview-footer">
+        <span>{actualRowCount} rows</span>
+        <span>{plantsPerRow} plants per row</span>
         </div>
-    )
+        </div>
+    );
 }
