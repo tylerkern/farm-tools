@@ -18,28 +18,28 @@ const GRIDDER_PRESETS: GridderPreset[] = [
     rowSpacing: 15,
     plantSpacing: 15,
   },
-{
-  id: "3x3",
-  rows: 3,
-  rowSpacing: 10,
-  plantSpacing: 10,
-},
-{
-  id: "4x4",
-  rows: 4,
-  rowSpacing: 7.5,
-  plantSpacing: 7.5,
-},
-{
-  id: "5x5",
-  rows: 5,
-  rowSpacing: 6,
-  plantSpacing: 6,
-},
+  {
+    id: "3x3",
+    rows: 3,
+    rowSpacing: 10,
+    plantSpacing: 10,
+  },
+  {
+    id: "4x4",
+    rows: 4,
+    rowSpacing: 7.5,
+    plantSpacing: 7.5,
+  },
+  {
+    id: "5x5",
+    rows: 5,
+    rowSpacing: 6,
+    plantSpacing: 6,
+  },
 ];
 
 function App() {
-  const [bedLength, setBedLength] = useState<string>("100");
+  const [bedLength, setBedLength] = useState("100");
   const [rows, setRows] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [plantSpacing, setPlantSpacing] = useState(10);
@@ -77,9 +77,7 @@ function App() {
   }, [bedLength, rows, plantSpacing, plantingPattern]);
 
 
-  const handlePresetChange = (
-    selectedPreset: GridderPreset
-  ) => {
+  const handlePresetChange = (selectedPreset: GridderPreset) => {
     setPreset(selectedPreset.id);
     setRows(selectedPreset.rows);
     setRowSpacing(selectedPreset.rowSpacing);
@@ -107,70 +105,58 @@ function App() {
 
   return (
     <div className="calculator-page">
-    <section className="calculator-card">
-    <div className="calculator-heading">
-    <div>
-    <h1>Transplant Calculator</h1>
-    <p>
-    Estimate plant counts and visualize your spacing.
-    </p>
-    </div>
-    </div>
+      <section className="calculator-card">
+        <div className="calculator-heading">
+          <div>
+            <h1>Transplant Calculator</h1>
+            <p>Estimate plant counts and visualize your spacing.</p>
+          </div>
+        </div>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="bedLength">Bed length</label>
+            <div className="input-with-unit">
+              <input
+              id="bedLength"
+              type="number"
+              min="1"
+              step="1"
+              value={bedLength}
+              onChange={(event) =>
+                setBedLength(event.target.value)
+              }
+              />
+              <span>ft</span>
+            </div>
+          </div>
+        </div>
+      <div className="section-block">
+        <div className="section-heading">
+          <h2>Gridder Presets</h2>
+          <p>Choose a standard Gridder pattern or customize the spacing below.</p>
+        </div>
+        <div className="preset-grid">
+          {GRIDDER_PRESETS.map((gridderPreset) => (
+            <button
+              key={gridderPreset.id}
+              type="button"
+              className={
+                preset === gridderPreset.id
+                ? "preset-button active"
+                : "preset-button"
+              }
+              aria-pressed={preset === gridderPreset.id}
+              onClick={() => handlePresetChange(gridderPreset)}>
+                <span className="preset-title">{gridderPreset.id}</span>
 
-    <div className="form-grid">
-    <div className="field">
-    <label htmlFor="bedLength">Bed length</label>
-
-    <div className="input-with-unit">
-    <input
-    id="bedLength"
-    type="number"
-    min="1"
-    step="1"
-    value={bedLength}
-    onChange={(event) =>
-      setBedLength(event.target.value)
-    }
-    />
-    <span>ft</span>
-    </div>
-    </div>
-    </div>
-
-    <div className="section-block">
-    <div className="section-heading">
-    <h2>Gridder Presets</h2>
-    <p>
-    Choose a standard Gridder pattern or customize
-    the spacing below.
-    </p>
-    </div>
-
-    <div className="preset-grid">
-    {GRIDDER_PRESETS.map((gridderPreset) => (
-      <button
-      key={gridderPreset.id}
-      type="button"
-      className={
-        preset === gridderPreset.id
-        ? "preset-button active"
-        : "preset-button"
-      }
-      aria-pressed={preset === gridderPreset.id}
-      onClick={() => handlePresetChange(gridderPreset)}
-      >
-      <span className="preset-title">
-      {gridderPreset.id}
-      </span>
-
-      <span className="preset-description">
-      {gridderPreset.rowSpacing}" ×{" "}
-      {gridderPreset.plantSpacing}"
-      </span>
-      </button>
-    ))}
-    </div>
-    </div>
+                <span className="preset-description">
+                  {gridderPreset.rowSpacing}" ×{" "}
+                  {gridderPreset.plantSpacing}"
+                </span>
+            </button>
+          ))}
+        </div>
+      </div>
 
     <div className="section-block">
     <div className="section-heading">

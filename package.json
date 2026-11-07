@@ -8,11 +8,14 @@
     "build": "tsc -b && vite build",
     "build:wp": "bash scripts/build-wp.sh",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "prevew": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "vitest": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
