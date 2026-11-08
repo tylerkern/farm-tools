@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import PlantingPreview from "./components/PlantingPreview";
+import {
+  calculatePlants,
+  rowsFitBed,
+  type PlantingPattern,
+} from "./calculators/planting";
 import "./App.css";
-
-type PlantingPattern = "standard" | "offset";
 
 type GridderPreset = {
   id: string;
@@ -50,37 +53,18 @@ function App() {
   const [plantingPattern, setPlantingPattern] =
   useState<PlantingPattern>("standard");
 
-  const requiredWidth = (rows - 1) * rowSpacing;
+  const rowsFit = rowsFitBed(
+    Number(bedWidth),
+    rows,
+    rowSpacing
+  );
 
-  const rowsFit = bedWidth.trim() !== "" && Number(bedWidth) >= requiredWidth;
-
-  const totalPlants = useMemo(() => {
-    const length = Number(bedLength);
-
-    if (
-      bedLength.trim() === "" ||
-      !Number.isFinite(length) ||
-      !Number.isInteger(rows) ||
-      !Number.isFinite(plantSpacing) ||
-      length <= 0 ||
-      rows <= 0 ||
-      plantSpacing <= 0
-    ) {
-      return 0;
-    }
-
-    const bedLengthInches = length * 12;
-    const plantsPerRow = Math.floor(
-      bedLengthInches / plantSpacing
-    );
-
-    const totalPositions = rows * plantsPerRow;
-
-    return plantingPattern === "offset"
-    ? Math.ceil(totalPositions / 2)
-    : totalPositions;
-  }, [bedLength, rows, plantSpacing, plantingPattern]);
-
+  const totalPlants = calculatePlants({
+    bedLength: Number(bedLength),
+    rows,
+    plantSpacing,
+    pattern: plantingPattern,
+  });
 
   const handlePresetChange = (selectedPreset: GridderPreset) => {
     setPreset(selectedPreset.id);

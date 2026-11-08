@@ -35,3 +35,26 @@ export function calculatePlants({
     ? Math.ceil(totalPositions / 2)
     : totalPositions;
 }
+
+
+export function rowsFitBed(
+    bedWidth: number,
+    rows: number,
+    rowSpacing: number
+): boolean {
+    if (
+        !Number.isFinite(bedWidth) ||
+        !Number.isInteger(rows) ||
+        !Number.isFinite(rowSpacing) ||
+        bedWidth <= 0 ||
+        rows <= 0 ||
+        rowSpacing <= 0
+    ) {
+        return false;
+    }
+
+    const requiredWidth = (rows - 1) * rowSpacing;
+
+    return requiredWidth <= bedWidth;
+}
+

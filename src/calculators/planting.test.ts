@@ -1,6 +1,6 @@
 
 import { expect, it } from "vitest";
-import { calculatePlants } from "./planting";
+import { calculatePlants,rowsFitBed } from "./planting";
 
 
 it.each([
@@ -75,3 +75,15 @@ it("rounds up alternating plants for odd grid counts", () => {
 
     expect(result).toBe(8);
 });
+
+it.each([
+    { width: 30, rows: 3, spacing: 10, expected: true },
+    { width: 30, rows: 5, spacing: 10, expected: false },
+    { width: 30, rows: 4, spacing: 7.5, expected: true },
+    { width: 0, rows: 3, spacing: 10, expected: false },
+])(
+    "$rows rows at $spacing inches in a $width inch bed",
+   ({ width, rows, spacing, expected }) => {
+       expect(rowsFitBed(width, rows, spacing)).toBe(expected);
+   }
+);
