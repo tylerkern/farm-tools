@@ -438,3 +438,24 @@
   outline: 2px solid #3dd425;
   outline-offset: 3px;
 }
+
+
+.calculator-page .spacing-warning {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5c68a;
+  border-radius: 6px;
+  background: #fff8e7;
+  color: #795517;
+  font-size: 0.875rem;
+}
+
+.calculator-page .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 600px) {
+  .calculator-page .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,7 @@
 type PlantingPattern = "standard" | "offset";
 
 type PlantingPreviewProps = {
+    bedWidth: number;
     rows: number;
     rowSpacing: number;
     plantSpacing: number;
@@ -8,13 +9,21 @@ type PlantingPreviewProps = {
 };
 
 export default function PlantingPreview({
+    bedWidth,
     rows,
     rowSpacing,
     plantSpacing,
     pattern,
 }: PlantingPreviewProps) {
+
+    if (
+        !Number.isFinite(bedWidth) ||
+        bedWidth <= 0
+    ) {
+        return <p>Enter a valid bed width.</p>;
+    }
+
     const bedLength = 60;
-    const bedWidth = 30;
 
     const previewWidth = 600;
     const previewHeight = 300;
@@ -78,7 +87,7 @@ export default function PlantingPreview({
         <div className="preview-header">
         <div>
         <h2>Planting Preview</h2>
-        <p>30" bed × 60" preview section</p>
+        <p>{bedWidth}" bed × 60" preview section</p>
         </div>
 
         <div className="preview-spacing-label">

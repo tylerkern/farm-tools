@@ -40,6 +40,7 @@ const GRIDDER_PRESETS: GridderPreset[] = [
 
 function App() {
   const [bedLength, setBedLength] = useState("100");
+  const [bedWidth, setBedWidth] = useState("30");
   const [rows, setRows] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [plantSpacing, setPlantSpacing] = useState(10);
@@ -48,6 +49,10 @@ function App() {
 
   const [plantingPattern, setPlantingPattern] =
   useState<PlantingPattern>("standard");
+
+  const requiredWidth = (rows - 1) * rowSpacing;
+
+  const rowsFit = bedWidth.trim() !== "" && Number(bedWidth) >= requiredWidth;
 
   const totalPlants = useMemo(() => {
     const length = Number(bedLength);
@@ -114,6 +119,23 @@ function App() {
         </div>
         <div className="form-grid">
           <div className="field">
+            <label htmlFor="bedWidth">Bed width</label>
+
+            <div className="input-with-unit">
+              <input
+              id="bedWidth"
+              type="number"
+              min="1"
+              step="0.5"
+              value={bedWidth}
+              onChange={(event) => {
+                setBedWidth(event.target.value);
+              }}
+              />
+            <span>in</span>
+            </div>
+          </div>
+          <div className="field">
             <label htmlFor="bedLength">Bed length</label>
             <div className="input-with-unit">
               <input
@@ -160,10 +182,15 @@ function App() {
 
     <div className="section-block">
     <div className="section-heading">
-    <h2>Manual Spacing</h2>
-    <p>
-    Adjust row and plant spacing independently.
-    </p>
+      <h2>Manual Spacing</h2>
+      <p>
+      Adjust row and plant spacing independently.
+      </p>
+      {bedWidth.trim() !== "" && !rowsFit && (
+        <p className="spacing-warning">
+          These rows won't fit within the selected bed width.
+        </p>
+      )}
     </div>
 
     <div className="spacing-controls">
@@ -284,10 +311,11 @@ function App() {
     </section>
 
     <PlantingPreview
-    rows={rows}
-    rowSpacing={rowSpacing}
-    plantSpacing={plantSpacing}
-    pattern={plantingPattern}
+      bedWidth={Number(bedWidth)}
+      rows={rows}
+      rowSpacing={rowSpacing}
+      plantSpacing={plantSpacing}
+      pattern={plantingPattern}
     />
     </section>
     </div>
