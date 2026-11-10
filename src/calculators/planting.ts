@@ -1,60 +1,53 @@
-
 export type PlantingPattern = "standard" | "offset";
 
 export interface PlantingInputs {
-    bedLength: number; // feet
-    rows: number;
-    plantSpacing: number; // inches
-    pattern: PlantingPattern;
+  bedLength: number; // feet
+  rows: number;
+  plantSpacing: number; // inches
+  pattern: PlantingPattern;
 }
 
 export function calculatePlants({
-    bedLength,
-    rows,
-    plantSpacing,
-    pattern,
+  bedLength,
+  rows,
+  plantSpacing,
+  pattern,
 }: PlantingInputs): number {
-    if (
-        !Number.isFinite(bedLength) ||
-        !Number.isInteger(rows) ||
-        !Number.isFinite(plantSpacing) ||
-        bedLength <= 0 ||
-        rows <= 0 ||
-        plantSpacing <= 0
-    ) {
-        return 0;
-    }
+  if (
+    !Number.isFinite(bedLength) ||
+    !Number.isInteger(rows) ||
+    !Number.isFinite(plantSpacing) ||
+    bedLength <= 0 ||
+    rows <= 0 ||
+    plantSpacing <= 0
+  ) {
+    return 0;
+  }
 
-    const plantsPerRow = Math.floor(
-        (bedLength * 12) / plantSpacing
-    );
+  const plantsPerRow = Math.floor((bedLength * 12) / plantSpacing);
 
-    const totalPositions = plantsPerRow * rows;
+  const totalPositions = plantsPerRow * rows;
 
-    return pattern === "offset"
-    ? Math.ceil(totalPositions / 2)
-    : totalPositions;
+  return pattern === "offset" ? Math.ceil(totalPositions / 2) : totalPositions;
 }
-
 
 export function rowsFitBed(
-    bedWidth: number,
-    rows: number,
-    rowSpacing: number
+  bedWidth: number,
+  rows: number,
+  rowSpacing: number,
 ): boolean {
-    if (
-        !Number.isFinite(bedWidth) ||
-        !Number.isInteger(rows) ||
-        !Number.isFinite(rowSpacing) ||
-        bedWidth <= 0 ||
-        rows <= 0 ||
-        rowSpacing <= 0
-    ) {
-        return false;
-    }
+  if (
+    !Number.isFinite(bedWidth) ||
+    !Number.isInteger(rows) ||
+    !Number.isFinite(rowSpacing) ||
+    bedWidth <= 0 ||
+    rows <= 0 ||
+    rowSpacing <= 0
+  ) {
+    return false;
+  }
 
-    const requiredWidth = (rows - 1) * rowSpacing;
+  const requiredWidth = (rows - 1) * rowSpacing;
 
-    return requiredWidth <= bedWidth;
+  return requiredWidth <= bedWidth;
 }
-
