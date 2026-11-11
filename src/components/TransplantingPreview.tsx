@@ -2,7 +2,7 @@ type PlantingPattern = "standard" | "offset";
 
 type PlantingPreviewProps = {
   bedWidth: number;
-  rows: number;
+  rowsCount: number;
   rowSpacing: number;
   plantSpacing: number;
   pattern: PlantingPattern;
@@ -10,7 +10,7 @@ type PlantingPreviewProps = {
 
 export default function PlantingPreview({
   bedWidth,
-  rows,
+  rowCount,
   rowSpacing,
   plantSpacing,
   pattern,
@@ -31,7 +31,7 @@ export default function PlantingPreview({
 
   const plantsPerRow = Math.max(1, Math.floor(bedLength / plantSpacing));
 
-  const actualRowCount = Math.max(1, rows);
+  const actualRowCount = Math.max(1, rowCount);
 
   const totalPlantWidth =
     plantsPerRow > 1 ? (plantsPerRow - 1) * plantStepX : 0;
@@ -45,7 +45,7 @@ export default function PlantingPreview({
 
   const plants: { x: number; y: number }[] = [];
 
-  for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
     for (let plantIndex = 0; plantIndex < plantsPerRow; plantIndex++) {
       // Checkerboard planting pattern
       if (pattern === "offset" && (rowIndex + plantIndex) % 2 !== 0) {
@@ -77,7 +77,7 @@ export default function PlantingPreview({
           viewBox={`0 0 ${previewWidth} ${previewHeight}`}
           className="planting-preview"
           role="img"
-          aria-label={`Planting preview with ${rows} rows`}
+          aria-label={`Planting preview with ${rowCount} rows`}
         >
           <rect
             x="0"
@@ -101,7 +101,7 @@ export default function PlantingPreview({
       </div>
 
       <div className="preview-footer">
-        <span>{rows} rows</span>
+        <span>{rowCount} rows</span>
         <span>{plantsPerRow} grid positions per row</span>
         <span>{plants.length} plants in preview</span>
       </div>

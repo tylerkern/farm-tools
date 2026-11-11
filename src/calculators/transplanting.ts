@@ -1,24 +1,24 @@
-export type PlantingPattern = "standard" | "offset";
+export type TransplantingPattern = "standard" | "offset";
 
-export interface PlantingInputs {
+export interface TransplantingInputs {
   bedLength: number; // feet
-  rows: number;
+  rowCount: number;
   plantSpacing: number; // inches
-  pattern: PlantingPattern;
+  pattern: TransplantingPattern;
 }
 
-export function calculatePlants({
+export function calculatePlantCount({
   bedLength,
-  rows,
+  rowCount,
   plantSpacing,
   pattern,
-}: PlantingInputs): number {
+}: TransplantingInputs): number {
   if (
     !Number.isFinite(bedLength) ||
-    !Number.isInteger(rows) ||
+    !Number.isInteger(rowCount) ||
     !Number.isFinite(plantSpacing) ||
     bedLength <= 0 ||
-    rows <= 0 ||
+    rowCount <= 0 ||
     plantSpacing <= 0
   ) {
     return 0;
@@ -26,28 +26,28 @@ export function calculatePlants({
 
   const plantsPerRow = Math.floor((bedLength * 12) / plantSpacing);
 
-  const totalPositions = plantsPerRow * rows;
+  const totalPositions = plantsPerRow * rowCount;
 
   return pattern === "offset" ? Math.ceil(totalPositions / 2) : totalPositions;
 }
 
-export function rowsFitBed(
+export function doRowsFitOnBed(
   bedWidth: number,
-  rows: number,
+  rowCount: number,
   rowSpacing: number,
 ): boolean {
   if (
     !Number.isFinite(bedWidth) ||
-    !Number.isInteger(rows) ||
+    !Number.isInteger(rowCount) ||
     !Number.isFinite(rowSpacing) ||
     bedWidth <= 0 ||
-    rows <= 0 ||
+    rowCount <= 0 ||
     rowSpacing <= 0
   ) {
     return false;
   }
 
-  const requiredWidth = (rows - 1) * rowSpacing;
+  const requiredWidth = (rowCount - 1) * rowSpacing;
 
   return requiredWidth <= bedWidth;
 }

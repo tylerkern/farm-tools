@@ -1,8 +1,8 @@
 import { useState } from "react";
 import TransplantingPreview from "./components/TransplantingPreview";
 import {
-  calculatePlants,
-  rowsFitBed,
+  calculatePlantCount,
+  doRowsFitOnBed,
   type TransplantingPattern,
 } from "./calculators/transplanting";
 import "./App.css";
@@ -15,7 +15,7 @@ import {
 function App() {
   const [bedLength, setBedLength] = useState("100");
   const [bedWidth, setBedWidth] = useState("30");
-  const [rows, setRows] = useState(3);
+  const [rowCount, setRowCount] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [transplantSpacing, setTransplantSpacing] = useState(10);
 
@@ -24,26 +24,29 @@ function App() {
   const [transplantingPattern, setTransplantingPattern] =
     useState<TransplantingPattern>("standard");
 
-  const rowsFit = rowsFitBed(Number(bedWidth), rows, rowSpacing);
+  const rowsFitOnBed = doRowsFitOnBed(Number(bedWidth), rowCount, rowSpacing);
 
-  const totalPlants = calculatePlants({
+  const totalPlants = calculatePlantCount({
     bedLength: Number(bedLength),
-    rows,
+    rowCount: rowCount,
     plantSpacing: transplantSpacing,
     pattern: transplantingPattern,
   });
 
   const handlePresetChange = (selectedPreset: GridPreset) => {
-    const spacing = calculateGridSpacing(Number(bedWidth), selectedPreset.rows);
+    const spacing = calculateGridSpacing(
+      Number(bedWidth),
+      selectedPreset.rowCount,
+    );
 
     setPreset(selectedPreset.id);
-    setRows(selectedPreset.rows);
+    setRowCount(selectedPreset.rowCount);
     setRowSpacing(spacing);
     setTransplantSpacing(spacing);
   };
 
   const handleRowsChange = (value: number) => {
-    setRows(Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1);
+    setRowCount(Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1);
     setPreset("custom");
   };
 
@@ -84,7 +87,7 @@ function App() {
                   if (preset !== "custom") {
                     const spacing = calculateGridSpacing(
                       Number(newWidth),
-                      rows,
+                      rowCount,
                     );
 
                     setRowSpacing(spacing);
@@ -133,9 +136,9 @@ function App() {
                 <span className="preset-title">{gridPreset.id}</span>
 
                 <span className="preset-description">
-                  {calculateGridSpacing(Number(bedWidth), gridPreset.rows)}"
+                  {calculateGridSpacing(Number(bedWidth), gridPreset.rowCount)}"
                   {" × "}
-                  {calculateGridSpacing(Number(bedWidth), gridPreset.rows)}"
+                  {calculateGridSpacing(Number(bedWidth), gridPreset.rowCount)}"
                 </span>
               </button>
             ))}
@@ -146,7 +149,7 @@ function App() {
           <div className="section-heading">
             <h2>Manual Spacing</h2>
             <p>Adjust row and plant spacing independently.</p>
-            {bedWidth.trim() !== "" && !rowsFit && (
+            {bedWidth.trim() !== "" && !rowsFitOnBed && (
               <p className="spacing-warning">
                 These rows won't fit within the selected bed width.
               </p>
@@ -161,7 +164,7 @@ function App() {
                 type="number"
                 min="1"
                 step="1"
-                value={rows}
+                value={rowCount}
                 onChange={(event) =>
                   handleRowsChange(event.target.valueAsNumber)
                 }
@@ -255,7 +258,7 @@ function App() {
           </div>
 
           <div className="result-details">
-            <span>{rows} rows</span>
+            <span>{rowCount} rows</span>
             <span>{rowSpacing}" row spacing</span>
             <span>{transplantSpacing}" plant spacing</span>
           </div>
@@ -263,7 +266,7 @@ function App() {
 
         <TransplantingPreview
           bedWidth={Number(bedWidth)}
-          rows={rows}
+          rowCount={rowCount}
           rowSpacing={rowSpacing}
           plantSpacing={transplantSpacing}
           pattern={transplantingPattern}
