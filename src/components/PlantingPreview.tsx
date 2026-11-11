@@ -63,7 +63,7 @@ export default function PlantingPreview({
     <section className="preview-card">
       <div className="preview-header">
         <div>
-          <h2>Planting Preview</h2>
+          <h2>Preview</h2>
           <p>{bedWidth}" bed × 60" preview section</p>
         </div>
 

@@ -6,40 +6,11 @@ import {
   type PlantingPattern,
 } from "./calculators/planting";
 import "./App.css";
-
-type GridderPreset = {
-  id: string;
-  rows: number;
-  rowSpacing: number;
-  plantSpacing: number;
-};
-
-const GRIDDER_PRESETS: GridderPreset[] = [
-  {
-    id: "2x2",
-    rows: 2,
-    rowSpacing: 15,
-    plantSpacing: 15,
-  },
-  {
-    id: "3x3",
-    rows: 3,
-    rowSpacing: 10,
-    plantSpacing: 10,
-  },
-  {
-    id: "4x4",
-    rows: 4,
-    rowSpacing: 7.5,
-    plantSpacing: 7.5,
-  },
-  {
-    id: "5x5",
-    rows: 5,
-    rowSpacing: 6,
-    plantSpacing: 6,
-  },
-];
+import {
+  GRID_PRESETS,
+  calculateGridSpacing,
+  type GridPreset,
+} from "./calculators/grid";
 
 function App() {
   const [bedLength, setBedLength] = useState("100");
@@ -62,11 +33,13 @@ function App() {
     pattern: plantingPattern,
   });
 
-  const handlePresetChange = (selectedPreset: GridderPreset) => {
+  const handlePresetChange = (selectedPreset: GridPreset) => {
+    const spacing = calculateGridSpacing(Number(bedWidth), selectedPreset.rows);
+
     setPreset(selectedPreset.id);
     setRows(selectedPreset.rows);
-    setRowSpacing(selectedPreset.rowSpacing);
-    setPlantSpacing(selectedPreset.plantSpacing);
+    setRowSpacing(spacing);
+    setPlantSpacing(spacing);
   };
 
   const handleRowsChange = (value: number) => {
@@ -105,7 +78,18 @@ function App() {
                 step="0.5"
                 value={bedWidth}
                 onChange={(event) => {
-                  setBedWidth(event.target.value);
+                  const newWidth = event.target.value;
+                  setBedWidth(newWidth);
+
+                  if (preset !== "custom") {
+                    const spacing = calculateGridSpacing(
+                      Number(newWidth),
+                      rows,
+                    );
+
+                    setRowSpacing(spacing);
+                    setPlantSpacing(spacing);
+                  }
                 }}
               />
               <span>in</span>
@@ -128,28 +112,30 @@ function App() {
         </div>
         <div className="section-block">
           <div className="section-heading">
-            <h2>Gridder Presets</h2>
+            <h2>Grid Presets</h2>
             <p>
-              Choose a standard Gridder pattern or customize the spacing below.
+              Choose a standard grid pattern or customize the spacing below.
             </p>
           </div>
           <div className="preset-grid">
-            {GRIDDER_PRESETS.map((gridderPreset) => (
+            {GRID_PRESETS.map((gridPreset) => (
               <button
-                key={gridderPreset.id}
+                key={gridPreset.id}
                 type="button"
                 className={
-                  preset === gridderPreset.id
+                  preset === gridPreset.id
                     ? "preset-button active"
                     : "preset-button"
                 }
-                aria-pressed={preset === gridderPreset.id}
-                onClick={() => handlePresetChange(gridderPreset)}
+                aria-pressed={preset === gridPreset.id}
+                onClick={() => handlePresetChange(gridPreset)}
               >
-                <span className="preset-title">{gridderPreset.id}</span>
+                <span className="preset-title">{gridPreset.id}</span>
 
                 <span className="preset-description">
-                  {gridderPreset.rowSpacing}" × {gridderPreset.plantSpacing}"
+                  {calculateGridSpacing(Number(bedWidth), gridPreset.rows)}"
+                  {" × "}
+                  {calculateGridSpacing(Number(bedWidth), gridPreset.rows)}"
                 </span>
               </button>
             ))}
@@ -224,7 +210,7 @@ function App() {
 
         <div className="section-block">
           <div className="section-heading">
-            <h2>Planting Pattern</h2>
+            <h2>Pattern</h2>
             <p>
               Plant every intersection or alternate positions on the fixed grid.
             </p>
