@@ -1,10 +1,10 @@
 import { useState } from "react";
-import PlantingPreview from "./components/PlantingPreview";
+import TransplantingPreview from "./components/TransplantingPreview";
 import {
   calculatePlants,
   rowsFitBed,
-  type PlantingPattern,
-} from "./calculators/planting";
+  type TransplantingPattern,
+} from "./calculators/transplanting";
 import "./App.css";
 import {
   GRID_PRESETS,
@@ -17,20 +17,20 @@ function App() {
   const [bedWidth, setBedWidth] = useState("30");
   const [rows, setRows] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
-  const [plantSpacing, setPlantSpacing] = useState(10);
+  const [transplantSpacing, setTransplantSpacing] = useState(10);
 
   const [preset, setPreset] = useState("3x3");
 
-  const [plantingPattern, setPlantingPattern] =
-    useState<PlantingPattern>("standard");
+  const [transplantingPattern, setTransplantingPattern] =
+    useState<TransplantingPattern>("standard");
 
   const rowsFit = rowsFitBed(Number(bedWidth), rows, rowSpacing);
 
   const totalPlants = calculatePlants({
     bedLength: Number(bedLength),
     rows,
-    plantSpacing,
-    pattern: plantingPattern,
+    plantSpacing: transplantSpacing,
+    pattern: transplantingPattern,
   });
 
   const handlePresetChange = (selectedPreset: GridPreset) => {
@@ -39,7 +39,7 @@ function App() {
     setPreset(selectedPreset.id);
     setRows(selectedPreset.rows);
     setRowSpacing(spacing);
-    setPlantSpacing(spacing);
+    setTransplantSpacing(spacing);
   };
 
   const handleRowsChange = (value: number) => {
@@ -53,7 +53,7 @@ function App() {
   };
 
   const handlePlantSpacingChange = (value: number) => {
-    setPlantSpacing(Number.isFinite(value) ? Math.max(0.5, value) : 0.5);
+    setTransplantSpacing(Number.isFinite(value) ? Math.max(0.5, value) : 0.5);
     setPreset("custom");
   };
 
@@ -88,7 +88,7 @@ function App() {
                     );
 
                     setRowSpacing(spacing);
-                    setPlantSpacing(spacing);
+                    setTransplantSpacing(spacing);
                   }
                 }}
               />
@@ -193,7 +193,7 @@ function App() {
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={plantSpacing}
+                  value={transplantSpacing}
                   onChange={(event) =>
                     handlePlantSpacingChange(event.target.valueAsNumber)
                   }
@@ -220,12 +220,12 @@ function App() {
             <button
               type="button"
               className={
-                plantingPattern === "standard"
+                transplantingPattern === "standard"
                   ? "pattern-button active"
                   : "pattern-button"
               }
-              aria-pressed={plantingPattern === "standard"}
-              onClick={() => setPlantingPattern("standard")}
+              aria-pressed={transplantingPattern === "standard"}
+              onClick={() => setTransplantingPattern("standard")}
             >
               Full Grid
             </button>
@@ -233,12 +233,12 @@ function App() {
             <button
               type="button"
               className={
-                plantingPattern === "offset"
+                transplantingPattern === "offset"
                   ? "pattern-button active"
                   : "pattern-button"
               }
-              aria-pressed={plantingPattern === "offset"}
-              onClick={() => setPlantingPattern("offset")}
+              aria-pressed={transplantingPattern === "offset"}
+              onClick={() => setTransplantingPattern("offset")}
             >
               Alternating Grid
             </button>
@@ -257,16 +257,16 @@ function App() {
           <div className="result-details">
             <span>{rows} rows</span>
             <span>{rowSpacing}" row spacing</span>
-            <span>{plantSpacing}" plant spacing</span>
+            <span>{transplantSpacing}" plant spacing</span>
           </div>
         </section>
 
-        <PlantingPreview
+        <TransplantingPreview
           bedWidth={Number(bedWidth)}
           rows={rows}
           rowSpacing={rowSpacing}
-          plantSpacing={plantSpacing}
-          pattern={plantingPattern}
+          plantSpacing={transplantSpacing}
+          pattern={transplantingPattern}
         />
       </section>
     </div>
