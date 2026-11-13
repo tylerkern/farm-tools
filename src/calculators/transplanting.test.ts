@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { calculatePlantCount, dorowCountFitOnBed } from "./transplanting";
+import { calculatePlantCount, doRowsFitOnBed } from "./transplanting";
 
 it.each([
   { preset: "2x2", rowCount: 2, spacing: 15, expected: 160 },
@@ -80,6 +80,6 @@ it.each([
 ])(
   "$rowCount rowCount at $spacing inches in a $width inch bed",
   ({ width, rowCount, spacing, expected }) => {
-    expect(dorowCountFitOnBed(width, rowCount, spacing)).toBe(expected);
+    expect(doRowsFitOnBed(width, rowCount, spacing)).toBe(expected);
   },
 );

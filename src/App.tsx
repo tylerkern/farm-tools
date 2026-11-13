@@ -6,6 +6,7 @@ import {
   type TransplantingPattern,
 } from "./calculators/transplanting";
 import "./App.css";
+import { truncateToTwoDeicmals } from "./utils/format";
 import {
   GRID_PRESETS,
   calculateGridSpacing,
@@ -136,9 +137,14 @@ function App() {
                 <span className="preset-title">{gridPreset.id}</span>
 
                 <span className="preset-description">
-                  {calculateGridSpacing(Number(bedWidth), gridPreset.rowCount)}"
-                  {" × "}
-                  {calculateGridSpacing(Number(bedWidth), gridPreset.rowCount)}"
+                  {truncateToTwoDeicmals(
+                    calculateGridSpacing(Number(bedWidth), gridPreset.rowCount),
+                  )}
+                  "{" × "}
+                  {truncateToTwoDeicmals(
+                    calculateGridSpacing(Number(bedWidth), gridPreset.rowCount),
+                  )}
+                  "
                 </span>
               </button>
             ))}
@@ -179,7 +185,7 @@ function App() {
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={rowSpacing}
+                  value={truncateToTwoDeicmals(rowSpacing)}
                   onChange={(event) =>
                     handleRowSpacingChange(event.target.valueAsNumber)
                   }
@@ -196,7 +202,7 @@ function App() {
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={transplantSpacing}
+                  value={truncateToTwoDeicmals(transplantSpacing)}
                   onChange={(event) =>
                     handlePlantSpacingChange(event.target.valueAsNumber)
                   }
@@ -259,8 +265,10 @@ function App() {
 
           <div className="result-details">
             <span>{rowCount} rows</span>
-            <span>{rowSpacing}" row spacing</span>
-            <span>{transplantSpacing}" plant spacing</span>
+            <span>{truncateToTwoDeicmals(rowSpacing)}" row spacing</span>
+            <span>
+              {truncateToTwoDeicmals(transplantSpacing)}" plant spacing
+            </span>
           </div>
         </section>
 

@@ -1,8 +1,10 @@
+import { truncateToTwoDeicmals } from "../utils/format";
+
 type PlantingPattern = "standard" | "offset";
 
 type PlantingPreviewProps = {
   bedWidth: number;
-  rowsCount: number;
+  rowCount: number;
   rowSpacing: number;
   plantSpacing: number;
   pattern: PlantingPattern;
@@ -68,7 +70,8 @@ export default function PlantingPreview({
         </div>
 
         <div className="preview-spacing-label">
-          {rowSpacing}" rows × {plantSpacing}" plants
+          {truncateToTwoDeicmals(rowSpacing)}" rows ×{" "}
+          {truncateToTwoDeicmals(plantSpacing)}" plants
         </div>
       </div>
 
