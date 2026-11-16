@@ -1,17 +1,16 @@
-
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
 
 const container =
-document.getElementById('farm-calculator-root') ??
-document.getElementById('root')
+  document.getElementById("transplant-calculator-root") ??
+  document.getElementById("root");
 
 if (container) {
   ReactDOM.createRoot(container).render(
     <React.StrictMode>
-    <App />
+      <App />
     </React.StrictMode>,
-  )
+  );
 }
