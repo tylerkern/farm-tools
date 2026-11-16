@@ -1,8 +1,7 @@
-
 #!/usr/bin/env bash
 set -euo pipefail
 
-PLUGIN_NAME="farm-react-test"
+PLUGIN_NAME="farm-tools"
 BUILD_DIR="dist"
 PACKAGE_DIR="wordpress-plugin"
 PLUGIN_DIR="$PACKAGE_DIR/$PLUGIN_NAME"
@@ -17,7 +16,7 @@ echo "Preparing WordPress plugin..."
 rm -rf "$PLUGIN_DIR"
 mkdir -p "$PLUGIN_DIR"
 
-cp farm-react-test.php "$PLUGIN_DIR/"
+cp farm-tools.php "$PLUGIN_DIR/"
 cp -r "$BUILD_DIR/assets" "$PLUGIN_DIR/"
 
 echo "Creating WordPress ZIP..."
