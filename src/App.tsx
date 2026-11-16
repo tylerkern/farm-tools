@@ -1,10 +1,11 @@
 import { useState } from "react";
 import TransplantingPreview from "./components/TransplantingPreview";
 import {
-  calculatePlantCount,
+  calculateTransplantCount,
   doRowsFitOnBed,
   type TransplantingPattern,
 } from "./calculators/transplanting";
+import { feetToCentimeters, inchesToCentimeters } from "./utils/units";
 import "./App.css";
 import { truncateToTwoDeicmals } from "./utils/format";
 import {
@@ -27,10 +28,10 @@ function App() {
 
   const rowsFitOnBed = doRowsFitOnBed(Number(bedWidth), rowCount, rowSpacing);
 
-  const totalPlants = calculatePlantCount({
-    bedLength: Number(bedLength),
+  const totalPlants = calculateTransplantCount({
+    bedLengthCm: feetToCentimeters(Number(bedLength)),
     rowCount: rowCount,
-    plantSpacing: transplantSpacing,
+    plantSpacingCm: inchesToCentimeters(transplantSpacing),
     pattern: transplantingPattern,
   });
 
