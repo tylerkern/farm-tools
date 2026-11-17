@@ -1,13 +1,14 @@
+import "./App.css";
 import { useState } from "react";
 import TransplantingPreview from "./components/TransplantingPreview";
+import { feetToCentimeters, inchesToCentimeters } from "./utils/units";
+import { truncateToTwoDeicmals } from "./utils/format";
+import type { UnitSystem } from "./utils/units";
 import {
   calculateTransplantCount,
   doRowsFitOnBed,
   type TransplantingPattern,
 } from "./calculators/transplanting";
-import { feetToCentimeters, inchesToCentimeters } from "./utils/units";
-import "./App.css";
-import { truncateToTwoDeicmals } from "./utils/format";
 import {
   GRID_PRESETS,
   calculateGridSpacing,
@@ -20,6 +21,7 @@ function App() {
   const [rowCount, setRowCount] = useState(3);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [transplantSpacing, setTransplantSpacing] = useState(10);
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>("imperial");
 
   const [preset, setPreset] = useState("3x3");
 
@@ -71,50 +73,85 @@ function App() {
             <p>Estimate plant counts and visualize your spacing.</p>
           </div>
         </div>
-        <div className="form-grid">
-          <div className="field">
-            <label htmlFor="bedWidth">Bed width</label>
+        <div className="section-block bed-details">
+          <div className="bed-details-header">
+            <div>
+              <h2>Bed Details</h2>
+              <p>Enter your bed dimensions.</p>
+            </div>
 
-            <div className="input-with-unit">
-              <input
-                id="bedWidth"
-                type="number"
-                min="1"
-                step="0.5"
-                value={bedWidth}
-                onChange={(event) => {
-                  const newWidth = event.target.value;
-                  setBedWidth(newWidth);
+            <div
+              className="unit-toggle"
+              role="group"
+              aria-label="Measurement system"
+            >
+              <button
+                type="button"
+                className={unitSystem === "imperial" ? "active" : ""}
+                aria-pressed={unitSystem === "imperial"}
+                onClick={() => setUnitSystem("imperial")}
+              >
+                Imperial
+              </button>
 
-                  if (preset !== "custom") {
-                    const spacing = calculateGridSpacing(
-                      Number(newWidth),
-                      rowCount,
-                    );
-
-                    setRowSpacing(spacing);
-                    setTransplantSpacing(spacing);
-                  }
-                }}
-              />
-              <span>in</span>
+              <button
+                type="button"
+                className={unitSystem === "metric" ? "active" : ""}
+                aria-pressed={unitSystem === "metric"}
+                onClick={() => setUnitSystem("metric")}
+              >
+                Metric
+              </button>
             </div>
           </div>
-          <div className="field">
-            <label htmlFor="bedLength">Bed length</label>
-            <div className="input-with-unit">
-              <input
-                id="bedLength"
-                type="number"
-                min="1"
-                step="1"
-                value={bedLength}
-                onChange={(event) => setBedLength(event.target.value)}
-              />
-              <span>ft</span>
+
+          <div className="form-grid">
+            {/* Keep your existing bed width and length inputs here */}
+            <div className="field">
+              <label htmlFor="bedWidth">Bed width</label>
+
+              <div className="input-with-unit">
+                <input
+                  id="bedWidth"
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={bedWidth}
+                  onChange={(event) => {
+                    const newWidth = event.target.value;
+                    setBedWidth(newWidth);
+
+                    if (preset !== "custom") {
+                      const spacing = calculateGridSpacing(
+                        Number(newWidth),
+                        rowCount,
+                      );
+
+                      setRowSpacing(spacing);
+                      setTransplantSpacing(spacing);
+                    }
+                  }}
+                />
+                <span>in</span>
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="bedLength">Bed length</label>
+              <div className="input-with-unit">
+                <input
+                  id="bedLength"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={bedLength}
+                  onChange={(event) => setBedLength(event.target.value)}
+                />
+                <span>ft</span>
+              </div>
             </div>
           </div>
         </div>
+
         <div className="section-block">
           <div className="section-heading">
             <h2>Grid Presets</h2>
