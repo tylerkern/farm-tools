@@ -37,10 +37,14 @@ function App() {
   const [bedWidthInput, setBedWidthInput] = useState("30");
   const [bedLengthInput, setBedLengthInput] = useState("100");
 
-  // Spacing remains in inches until the next stage of the metric refactor.
+  // Spacing uses canonical centimeters, just like bed dimensions.
   const [rowCount, setRowCount] = useState(3);
-  const [rowSpacing, setRowSpacing] = useState(10);
-  const [transplantSpacing, setTransplantSpacing] = useState(10);
+  const [rowSpacingCm, setRowSpacingCm] = useState(25.4);
+  const [transplantSpacingCm, setTransplantSpacingCm] = useState(25.4);
+
+  // Editable spacing text in the currently selected unit system.
+  const [rowSpacingInput, setRowSpacingInput] = useState("10");
+  const [transplantSpacingInput, setTransplantSpacingInput] = useState("10");
   const [preset, setPreset] = useState("3x3");
   const [transplantingPattern, setTransplantingPattern] =
     useState<TransplantingPattern>("standard");
@@ -56,18 +60,23 @@ function App() {
     Number(bedLengthInput) > 0;
 
   const bedWidthInches = centimetersToInches(bedWidthCm);
-  const rowsFitOnBed = doRowsFitOnBed(
-    bedWidthCm,
-    rowCount,
-    inchesToCentimeters(rowSpacing),
-  );
+  const validRowSpacing =
+    rowSpacingInput.trim() !== "" &&
+    Number.isFinite(Number(rowSpacingInput)) &&
+    Number(rowSpacingInput) > 0;
+  const validTransplantSpacing =
+    transplantSpacingInput.trim() !== "" &&
+    Number.isFinite(Number(transplantSpacingInput)) &&
+    Number(transplantSpacingInput) > 0;
+
+  const rowsFitOnBed = doRowsFitOnBed(bedWidthCm, rowCount, rowSpacingCm);
 
   const totalPlants =
-    validBedWidth && validBedLength
+    validBedWidth && validBedLength && validRowSpacing && validTransplantSpacing
       ? calculateTransplantCount({
           bedLengthCm,
           rowCount,
-          plantSpacingCm: inchesToCentimeters(transplantSpacing),
+          plantSpacingCm: transplantSpacingCm,
           pattern: transplantingPattern,
         })
       : 0;
@@ -87,12 +96,14 @@ function App() {
     setBedWidthCm(newWidthCm);
 
     if (preset !== "custom") {
-      const spacing = calculateGridSpacing(
-        centimetersToInches(newWidthCm),
-        rowCount,
+      const spacingCm = calculateGridSpacing(newWidthCm, rowCount);
+      setRowSpacingCm(spacingCm);
+      setTransplantSpacingCm(spacingCm);
+      const displayedSpacing = displayMeasurement(
+        unitSystem === "imperial" ? centimetersToInches(spacingCm) : spacingCm,
       );
-      setRowSpacing(spacing);
-      setTransplantSpacing(spacing);
+      setRowSpacingInput(displayedSpacing);
+      setTransplantSpacingInput(displayedSpacing);
     }
   };
 
@@ -126,18 +137,34 @@ function App() {
           : centimetersToMeters(bedLengthCm),
       ),
     );
+    setRowSpacingInput(
+      displayMeasurement(
+        newSystem === "imperial"
+          ? centimetersToInches(rowSpacingCm)
+          : rowSpacingCm,
+      ),
+    );
+    setTransplantSpacingInput(
+      displayMeasurement(
+        newSystem === "imperial"
+          ? centimetersToInches(transplantSpacingCm)
+          : transplantSpacingCm,
+      ),
+    );
   };
 
   const handlePresetChange = (selectedPreset: GridPreset) => {
-    const spacing = calculateGridSpacing(
-      bedWidthInches,
-      selectedPreset.rowCount,
+    const spacingCm = calculateGridSpacing(bedWidthCm, selectedPreset.rowCount);
+    const displayedSpacing = displayMeasurement(
+      unitSystem === "imperial" ? centimetersToInches(spacingCm) : spacingCm,
     );
 
     setPreset(selectedPreset.id);
     setRowCount(selectedPreset.rowCount);
-    setRowSpacing(spacing);
-    setTransplantSpacing(spacing);
+    setRowSpacingCm(spacingCm);
+    setTransplantSpacingCm(spacingCm);
+    setRowSpacingInput(displayedSpacing);
+    setTransplantSpacingInput(displayedSpacing);
   };
 
   const handleRowsChange = (value: number) => {
@@ -145,14 +172,36 @@ function App() {
     setPreset("custom");
   };
 
-  const handleRowSpacingChange = (value: number) => {
-    setRowSpacing(Number.isFinite(value) ? Math.max(0.5, value) : 0.5);
+  const handleRowSpacingChange = (value: string) => {
+    setRowSpacingInput(value);
     setPreset("custom");
+    if (
+      value.trim() === "" ||
+      !Number.isFinite(Number(value)) ||
+      Number(value) <= 0
+    )
+      return;
+    setRowSpacingCm(
+      unitSystem === "imperial"
+        ? inchesToCentimeters(Number(value))
+        : Number(value),
+    );
   };
 
-  const handlePlantSpacingChange = (value: number) => {
-    setTransplantSpacing(Number.isFinite(value) ? Math.max(0.5, value) : 0.5);
+  const handlePlantSpacingChange = (value: string) => {
+    setTransplantSpacingInput(value);
     setPreset("custom");
+    if (
+      value.trim() === "" ||
+      !Number.isFinite(Number(value)) ||
+      Number(value) <= 0
+    )
+      return;
+    setTransplantSpacingCm(
+      unitSystem === "imperial"
+        ? inchesToCentimeters(Number(value))
+        : Number(value),
+    );
   };
 
   return (
@@ -238,10 +287,15 @@ function App() {
           </div>
           <div className="preset-grid">
             {GRID_PRESETS.map((gridPreset) => {
-              const spacing = calculateGridSpacing(
-                bedWidthInches,
+              const spacingCm = calculateGridSpacing(
+                bedWidthCm,
                 gridPreset.rowCount,
               );
+              const spacing =
+                unitSystem === "imperial"
+                  ? centimetersToInches(spacingCm)
+                  : spacingCm;
+              const spacingUnit = unitSystem === "imperial" ? '"' : " cm";
 
               return (
                 <button
@@ -258,7 +312,7 @@ function App() {
                   <span className="preset-title">{gridPreset.id}</span>
                   <span className="preset-description">
                     {validBedWidth
-                      ? `${displayMeasurement(spacing)}\" × ${displayMeasurement(spacing)}\"`
+                      ? `${displayMeasurement(spacing)}${spacingUnit} × ${displayMeasurement(spacing)}${spacingUnit}`
                       : "—"}
                   </span>
                 </button>
@@ -271,7 +325,7 @@ function App() {
           <div className="section-heading">
             <h2>Manual Spacing</h2>
             <p>Adjust row and plant spacing independently.</p>
-            {validBedWidth && !rowsFitOnBed && (
+            {validBedWidth && validRowSpacing && !rowsFitOnBed && (
               <p className="spacing-warning">
                 These rows won't fit within the selected bed width.
               </p>
@@ -297,14 +351,14 @@ function App() {
                 <input
                   id="rowSpacing"
                   type="number"
-                  min="0.5"
+                  min="0"
                   step="any"
-                  value={truncateToTwoDeicmals(rowSpacing)}
+                  value={rowSpacingInput}
                   onChange={(event) =>
-                    handleRowSpacingChange(event.target.valueAsNumber)
+                    handleRowSpacingChange(event.target.value)
                   }
                 />
-                <span>in</span>
+                <span>{unitSystem === "imperial" ? "in" : "cm"}</span>
               </div>
             </div>
             <div className="field">
@@ -313,14 +367,14 @@ function App() {
                 <input
                   id="plantSpacing"
                   type="number"
-                  min="0.5"
+                  min="0"
                   step="any"
-                  value={truncateToTwoDeicmals(transplantSpacing)}
+                  value={transplantSpacingInput}
                   onChange={(event) =>
-                    handlePlantSpacingChange(event.target.valueAsNumber)
+                    handlePlantSpacingChange(event.target.value)
                   }
                 />
-                <span>in</span>
+                <span>{unitSystem === "imperial" ? "in" : "cm"}</span>
               </div>
             </div>
           </div>
@@ -373,18 +427,36 @@ function App() {
           </div>
           <div className="result-details">
             <span>{rowCount} rows</span>
-            <span>{displayMeasurement(rowSpacing)}" row spacing</span>
-            <span>{displayMeasurement(transplantSpacing)}" plant spacing</span>
+            <span>
+              {validRowSpacing
+                ? displayMeasurement(
+                    unitSystem === "imperial"
+                      ? centimetersToInches(rowSpacingCm)
+                      : rowSpacingCm,
+                  )
+                : "—"}{" "}
+              {unitSystem === "imperial" ? "in" : "cm"} row spacing
+            </span>
+            <span>
+              {validTransplantSpacing
+                ? displayMeasurement(
+                    unitSystem === "imperial"
+                      ? centimetersToInches(transplantSpacingCm)
+                      : transplantSpacingCm,
+                  )
+                : "—"}{" "}
+              {unitSystem === "imperial" ? "in" : "cm"} plant spacing
+            </span>
           </div>
         </section>
 
-        {/* Preview still expects imperial measurements in this stage. */}
-        {validBedWidth && (
+        {/* The existing preview still expects inches; convert at its boundary. */}
+        {validBedWidth && validRowSpacing && validTransplantSpacing && (
           <TransplantingPreview
             bedWidth={bedWidthInches}
             rowCount={rowCount}
-            rowSpacing={rowSpacing}
-            plantSpacing={transplantSpacing}
+            rowSpacing={centimetersToInches(rowSpacingCm)}
+            plantSpacing={centimetersToInches(transplantSpacingCm)}
             pattern={transplantingPattern}
           />
         )}
