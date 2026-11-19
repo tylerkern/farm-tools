@@ -59,7 +59,6 @@ function App() {
     Number.isFinite(Number(bedLengthInput)) &&
     Number(bedLengthInput) > 0;
 
-  const bedWidthInches = centimetersToInches(bedWidthCm);
   const validRowSpacing =
     rowSpacingInput.trim() !== "" &&
     Number.isFinite(Number(rowSpacingInput)) &&
@@ -450,14 +449,14 @@ function App() {
           </div>
         </section>
 
-        {/* The existing preview still expects inches; convert at its boundary. */}
         {validBedWidth && validRowSpacing && validTransplantSpacing && (
           <TransplantingPreview
-            bedWidth={bedWidthInches}
+            bedWidthCm={bedWidthCm}
             rowCount={rowCount}
-            rowSpacing={centimetersToInches(rowSpacingCm)}
-            plantSpacing={centimetersToInches(transplantSpacingCm)}
+            rowSpacingCm={rowSpacingCm}
+            plantSpacingCm={transplantSpacingCm}
             pattern={transplantingPattern}
+            unitSystem={unitSystem}
           />
         )}
       </section>
