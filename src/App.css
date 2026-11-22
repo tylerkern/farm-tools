@@ -488,6 +488,19 @@
   font-size: 0.9rem;
 }
 
+/* Bed details header actions */
+
+.calculator-page .bed-details-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.calculator-page .bed-details-actions .reset-button {
+  white-space: nowrap;
+}
+
 /* More compact measurement toggle */
 
 .calculator-page .unit-toggle {
@@ -519,6 +532,69 @@
 .calculator-page .unit-toggle button:focus-visible {
   outline: 2px solid #2e7d32;
   outline-offset: 2px;
+}
+
+/* Reset to Defaults button */
+
+.calculator-page .reset-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 9px 16px;
+  border: 1px solid #d5ddd5;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #59665b;
+
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.calculator-page .reset-button:hover {
+  background: #f1f5f1;
+  border-color: #aabdab;
+  color: #2e7d32;
+}
+
+.calculator-page .reset-button:focus-visible {
+  outline: 2px solid #2e7d32;
+  outline-offset: 3px;
+}
+
+.calculator-page .reset-button:active {
+  background: #e5eee5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calculator-page .reset-button {
+    transition: none;
+  }
+}
+
+/* Mobile layout */
+
+@media (max-width: 600px) {
+  .calculator-page .bed-details-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .calculator-page .bed-details-actions .reset-button {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
 }
 
 /* Small screens */
