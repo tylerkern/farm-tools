@@ -1,16 +1,18 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import type { Language } from "./i18n";
 
 const container =
   document.getElementById("transplant-calculator-root") ??
   document.getElementById("root");
 
 if (container) {
-  ReactDOM.createRoot(container).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
+  const language: Language = container.dataset.lang === "ja" ? "ja" : "en";
+
+  createRoot(container).render(
+    <StrictMode>
+      <App language={language} />
+    </StrictMode>,
   );
 }

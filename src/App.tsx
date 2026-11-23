@@ -30,13 +30,19 @@ import {
   saveCalculatorSettings,
   clearCalculatorSettings,
 } from "./utils/calculatorSettings";
+import { getTranslations, type Language } from "./i18n";
 import "./App.css";
 
 // Formatting applies only to what the user sees, never to stored measurements.
 const displayMeasurement = (value: number): string =>
   String(truncateToTwoDeicmals(value));
 
-function App() {
+type AppProps = {
+  language: Language;
+};
+
+function App({ language }: AppProps) {
+  const t = getTranslations(language);
   // Read local storage once. Canonical distances are always in centimeters.
   const [initialSettings] = useState(readCalculatorSettings);
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
@@ -287,7 +293,7 @@ function App() {
       <section className="calculator-card">
         <div className="calculator-heading">
           <div>
-            <h1>Transplant Calculator</h1>
+            <h1>{t.title}</h1>
             <p>Estimate plant counts and visualize your spacing.</p>
           </div>
         </div>
