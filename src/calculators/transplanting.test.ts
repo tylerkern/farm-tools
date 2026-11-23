@@ -1,5 +1,11 @@
 import { expect, it } from "vitest";
-import { calculatePlantCount, doRowsFitOnBed } from "./transplanting";
+import { calculateTransplantCount, doRowsFitOnBed } from "./transplanting";
+import {
+  feetToCentimeters,
+  inchesToCentimeters,
+  centimetersToInches,
+  metersToCentimeters,
+} from "../utils/units";
 
 it.each([
   { preset: "2x2", rowCount: 2, spacing: 15, expected: 160 },
@@ -9,10 +15,10 @@ it.each([
 ])(
   "full $preset Gridder calculates $expected plants",
   ({ rowCount: rowCount, spacing, expected }) => {
-    const result = calculatePlantCount({
-      bedLength: 100,
+    const result = calculateTransplantCount({
+      bedLengthCm: feetToCentimeters(100),
       rowCount: rowCount,
-      plantSpacing: spacing,
+      plantSpacingCm: inchesToCentimeters(spacing),
       pattern: "standard",
     });
 
@@ -28,10 +34,10 @@ it.each([
 ])(
   "offset $preset Gridder calculates $expected plants",
   ({ rowCount: rowCount, spacing, expected }) => {
-    const result = calculatePlantCount({
-      bedLength: 100,
+    const result = calculateTransplantCount({
+      bedLengthCm: feetToCentimeters(100),
       rowCount: rowCount,
-      plantSpacing: spacing,
+      plantSpacingCm: inchesToCentimeters(spacing),
       pattern: "offset",
     });
 
@@ -40,10 +46,10 @@ it.each([
 );
 
 it("returns 0 when plant spacing is zero", () => {
-  const result = calculatePlantCount({
-    bedLength: 100,
+  const result = calculateTransplantCount({
+    bedLengthCm: feetToCentimeters(100),
     rowCount: 3,
-    plantSpacing: 0,
+    plantSpacingCm: inchesToCentimeters(0),
     pattern: "standard",
   });
 
@@ -51,10 +57,10 @@ it("returns 0 when plant spacing is zero", () => {
 });
 
 it("returns 0 for negative bed length", () => {
-  const result = calculatePlantCount({
-    bedLength: -100,
+  const result = calculateTransplantCount({
+    bedLengthCm: feetToCentimeters(-100),
     rowCount: 3,
-    plantSpacing: 10,
+    plantSpacingCm: inchesToCentimeters(10),
     pattern: "standard",
   });
 
@@ -62,10 +68,10 @@ it("returns 0 for negative bed length", () => {
 });
 
 it("rounds up alternating plants for odd grid counts", () => {
-  const result = calculatePlantCount({
-    bedLength: 5,
+  const result = calculateTransplantCount({
+    bedLengthCm: feetToCentimeters(5),
     rowCount: 3,
-    plantSpacing: 12,
+    plantSpacingCm: inchesToCentimeters(12),
     pattern: "offset",
   });
 
@@ -83,3 +89,31 @@ it.each([
     expect(doRowsFitOnBed(width, rowCount, spacing)).toBe(expected);
   },
 );
+
+it("preserves transplant count across unit conversions", () => {
+  const bedLengthCm = feetToCentimeters(100);
+  const plantSpacingCm = inchesToCentimeters(10);
+
+  const original = calculateTransplantCount({
+    bedLengthCm,
+    rowCount: 3,
+    plantSpacingCm,
+    pattern: "standard",
+  });
+
+  const roundTrippedSpacing = inchesToCentimeters(
+    centimetersToInches(plantSpacingCm),
+  );
+
+  const roundTrippedLength = metersToCentimeters(bedLengthCm / 100);
+
+  const converted = calculateTransplantCount({
+    bedLengthCm: roundTrippedLength,
+    rowCount: 3,
+    plantSpacingCm: roundTrippedSpacing,
+    pattern: "standard",
+  });
+
+  expect(original).toBe(360);
+  expect(converted).toBe(original);
+});

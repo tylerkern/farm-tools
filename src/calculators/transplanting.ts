@@ -1,30 +1,34 @@
 export type TransplantingPattern = "standard" | "offset";
 
 export interface TransplantingInputs {
-  bedLength: number; // feet
+  bedLengthCm: number;
   rowCount: number;
-  plantSpacing: number; // inches
+  plantSpacingCm: number;
   pattern: TransplantingPattern;
 }
 
-export function calculatePlantCount({
-  bedLength,
+export function calculateTransplantCount({
+  bedLengthCm,
   rowCount,
-  plantSpacing,
+  plantSpacingCm,
   pattern,
 }: TransplantingInputs): number {
   if (
-    !Number.isFinite(bedLength) ||
+    !Number.isFinite(bedLengthCm) ||
     !Number.isInteger(rowCount) ||
-    !Number.isFinite(plantSpacing) ||
-    bedLength <= 0 ||
+    !Number.isFinite(plantSpacingCm) ||
+    bedLengthCm <= 0 ||
     rowCount <= 0 ||
-    plantSpacing <= 0
+    plantSpacingCm <= 0
   ) {
     return 0;
   }
 
-  const plantsPerRow = Math.floor((bedLength * 12) / plantSpacing);
+  // Small tolerance for floating-point conversion errors
+  const ratio = bedLengthCm / plantSpacingCm;
+  const plantsPerRow = Math.floor(
+    ratio + Number.EPSILON * Math.max(1, Math.abs(ratio)) * 4,
+  );
 
   const totalPositions = plantsPerRow * rowCount;
 
