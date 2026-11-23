@@ -1,6 +1,11 @@
 import { expect, it } from "vitest";
 import { calculateTransplantCount, doRowsFitOnBed } from "./transplanting";
-import { feetToCentimeters, inchesToCentimeters } from "../utils/units";
+import {
+  feetToCentimeters,
+  inchesToCentimeters,
+  centimetersToInches,
+  metersToCentimeters,
+} from "../utils/units";
 
 it.each([
   { preset: "2x2", rowCount: 2, spacing: 15, expected: 160 },
@@ -84,3 +89,31 @@ it.each([
     expect(doRowsFitOnBed(width, rowCount, spacing)).toBe(expected);
   },
 );
+
+it("preserves transplant count across unit conversions", () => {
+  const bedLengthCm = feetToCentimeters(100);
+  const plantSpacingCm = inchesToCentimeters(10);
+
+  const original = calculateTransplantCount({
+    bedLengthCm,
+    rowCount: 3,
+    plantSpacingCm,
+    pattern: "standard",
+  });
+
+  const roundTrippedSpacing = inchesToCentimeters(
+    centimetersToInches(plantSpacingCm),
+  );
+
+  const roundTrippedLength = metersToCentimeters(bedLengthCm / 100);
+
+  const converted = calculateTransplantCount({
+    bedLengthCm: roundTrippedLength,
+    rowCount: 3,
+    plantSpacingCm: roundTrippedSpacing,
+    pattern: "standard",
+  });
+
+  expect(original).toBe(360);
+  expect(converted).toBe(original);
+});
