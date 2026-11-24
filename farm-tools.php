@@ -11,7 +11,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function farm_tools_transplant_shortcode() {
+function farm_tools_transplant_shortcode($atts = []) {
+    $atts = shortcode_atts(
+        ['lang' => 'en'],
+        $atts,
+        'transplant_calculator'
+    );
+
+    $language = in_array($atts['lang'], ['en', 'ja'], true)
+        ? $atts['lang']
+        : 'en';
     $js_files = glob(plugin_dir_path(__FILE__) . 'assets/index-*.js');
     $css_files = glob(plugin_dir_path(__FILE__) . 'assets/index-*.css');
 
@@ -34,7 +43,9 @@ function farm_tools_transplant_shortcode() {
                       true
     );
 
-    return '<div id="transplant-calculator-root"></div>';
+    return '<div id="transplant-calculator-root" data-lang="' .
+    esc_attr($language) .
+    '"></div>';
 }
 
 add_shortcode('transplant_calculator', 'farm_tools_transplant_shortcode');
