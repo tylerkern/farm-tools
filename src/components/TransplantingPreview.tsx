@@ -1,6 +1,11 @@
+import { getTranslations, type Language } from "../i18n";
 import { truncateToTwoDeicmals } from "../utils/format";
 import { centimetersToInches, type UnitSystem } from "../utils/units";
 import type { TransplantingPattern } from "../calculators/transplanting";
+import {
+  calculateTransplantPositions,
+  PREVIEW_LENGTH_CM,
+} from "../calculators/transplantGeometry";
 
 type TransplantingPreviewProps = {
   bedWidthCm: number;
@@ -9,12 +14,8 @@ type TransplantingPreviewProps = {
   plantSpacingCm: number;
   pattern: TransplantingPattern;
   unitSystem: UnitSystem;
+  language: Language;
 };
-
-// Show a fixed 60-inch section of bed, regardless of the selected units.
-const PREVIEW_LENGTH_CM = 152.4;
-const PIXELS_PER_CM = 4;
-const MAX_PREVIEW_DOTS = 1500;
 
 function formatMeasurement(cm: number, unitSystem: UnitSystem): string {
   const value = unitSystem === "imperial" ? centimetersToInches(cm) : cm;
@@ -29,109 +30,71 @@ export default function TransplantingPreview({
   plantSpacingCm,
   pattern,
   unitSystem,
+  language,
 }: TransplantingPreviewProps) {
-  if (
-    !Number.isFinite(bedWidthCm) ||
-    bedWidthCm <= 0 ||
-    !Number.isInteger(rowCount) ||
-    rowCount <= 0 ||
-    !Number.isFinite(rowSpacingCm) ||
-    rowSpacingCm <= 0 ||
-    !Number.isFinite(plantSpacingCm) ||
-    plantSpacingCm <= 0
-  ) {
-    return <p>Enter valid bed dimensions and spacing to see the preview.</p>;
-  }
+  const t = getTranslations(language);
+  const geometry = calculateTransplantPositions({
+    bedWidthCm,
+    rowCount,
+    rowSpacingCm,
+    plantSpacingCm,
+    pattern,
+  });
 
-  // One common scale preserves the real proportions of the bed and grid.
-  const previewWidth = PREVIEW_LENGTH_CM * PIXELS_PER_CM;
-  const previewHeight = bedWidthCm * PIXELS_PER_CM;
-
-  // Match the transplant count's approach to full spacing intervals.
-  const ratio = PREVIEW_LENGTH_CM / plantSpacingCm;
-  const plantsPerRow = Math.floor(
-    ratio + Number.EPSILON * Math.max(1, Math.abs(ratio)) * 4,
-  );
-  const gridPositions = plantsPerRow * rowCount;
-  const tooDense = gridPositions > MAX_PREVIEW_DOTS;
-
-  const plantStepX = plantSpacingCm * PIXELS_PER_CM;
-  const rowStepY = rowSpacingCm * PIXELS_PER_CM;
-
-  const totalPlantWidth = Math.max(0, plantsPerRow - 1) * plantStepX;
-  const totalRowHeight = (rowCount - 1) * rowStepY;
-  const startX = (previewWidth - totalPlantWidth) / 2;
-  const startY = (previewHeight - totalRowHeight) / 2;
-
-  const plants: { x: number; y: number; key: string }[] = [];
-
-  if (!tooDense) {
-    for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-      for (let plantIndex = 0; plantIndex < plantsPerRow; plantIndex++) {
-        if (pattern === "offset" && (rowIndex + plantIndex) % 2 !== 0) {
-          continue;
-        }
-
-        plants.push({
-          key: `${rowIndex}-${plantIndex}`,
-          x: startX + plantIndex * plantStepX,
-          y: startY + rowIndex * rowStepY,
-        });
-      }
-    }
+  if (!geometry.valid) {
+    return <p>{t.invalidPreview}</p>;
   }
 
   return (
     <section className="preview-card">
       <div className="preview-header">
         <div>
-          <h2>Preview</h2>
+          <h2>{t.preview}</h2>
           <p>
-            {formatMeasurement(bedWidthCm, unitSystem)} bed ×{" "}
-            {formatMeasurement(PREVIEW_LENGTH_CM, unitSystem)} preview section
+            {formatMeasurement(bedWidthCm, unitSystem)} {t.bed} ×{" "}
+            {formatMeasurement(PREVIEW_LENGTH_CM, unitSystem)} {t.previewSection}
           </p>
         </div>
-
         <div className="preview-spacing-label">
-          {formatMeasurement(rowSpacingCm, unitSystem)} rows ×{" "}
-          {formatMeasurement(plantSpacingCm, unitSystem)} plants
+          {formatMeasurement(rowSpacingCm, unitSystem)} {t.rowSpacing} ×{" "}
+          {formatMeasurement(plantSpacingCm, unitSystem)} {t.inRowSpacing}
         </div>
       </div>
 
       <div className="preview-wrapper">
         <svg
-          viewBox={`0 0 ${previewWidth} ${previewHeight}`}
+          viewBox={`0 0 ${geometry.bedLengthCm} ${geometry.bedWidthCm}`}
           className="planting-preview"
           role="img"
-          aria-label={`Transplanting preview with ${rowCount} rows`}
+          aria-label={t.previewAria.replace("{rows}", String(rowCount))}
         >
           <rect
             x="0"
             y="0"
-            width={previewWidth}
-            height={previewHeight}
-            rx="12"
+            width={geometry.bedLengthCm}
+            height={geometry.bedWidthCm}
+            rx="3"
             className="bed-background"
           />
-          {plants.map((plant) => (
+          {geometry.positions.map((plant) => (
             <circle
               key={plant.key}
-              cx={plant.x}
-              cy={plant.y}
-              r="7"
+              cx={plant.xCm}
+              cy={plant.yCm}
+              r="1.75"
               className="plant-dot"
             />
           ))}
         </svg>
       </div>
 
-      {tooDense ? (
-        <p>Spacing is too dense to display individual plants in the preview.</p>
+      {geometry.tooDense ? (
+        <p>{t.previewTooDense}</p>
       ) : (
         <div className="preview-footer">
-          <span>{rowCount} rows</span>
-          <span>{plantsPerRow} grid positions per row</span>
-          <span>{plants.length} plants in preview</span>
+          <span>{rowCount} {t.rows}</span>
+          <span>{geometry.positionsPerRow} {t.gridPositionsPerRow}</span>
+          <span>{geometry.positions.length} {t.plantsInPreview}</span>
         </div>
       )}
     </section>
