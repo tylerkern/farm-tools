@@ -20,7 +20,10 @@ import {
   calculateGridSpacing,
   type GridPreset,
 } from "./calculators/grid";
-import { parsePositiveMeasurement, parseRowCount } from "./utils/inputValidation";
+import {
+  parsePositiveMeasurement,
+  parseRowCount,
+} from "./utils/inputValidation";
 import {
   DEFAULT_CALCULATOR_SETTINGS,
   readCalculatorSettings,
@@ -40,19 +43,29 @@ function App({ language }: AppProps) {
   const t = getTranslations(language);
   // Read local storage once. Canonical distances are always in centimeters.
   const [initialSettings] = useState(readCalculatorSettings);
-  const [unitSystem, setUnitSystem] = useState<UnitSystem>(initialSettings.unitSystem);
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>(
+    initialSettings.unitSystem,
+  );
   const [bedWidthCm, setBedWidthCm] = useState(initialSettings.bedWidthCm);
   const [bedLengthCm, setBedLengthCm] = useState(initialSettings.bedLengthCm);
-  const [rowSpacingCm, setRowSpacingCm] = useState(initialSettings.rowSpacingCm);
-  const [transplantSpacingCm, setTransplantSpacingCm] = useState(initialSettings.plantSpacingCm);
-  const [rowCountInput, setRowCountInput] = useState(String(initialSettings.rowCount));
+  const [rowSpacingCm, setRowSpacingCm] = useState(
+    initialSettings.rowSpacingCm,
+  );
+  const [transplantSpacingCm, setTransplantSpacingCm] = useState(
+    initialSettings.plantSpacingCm,
+  );
+  const [rowCountInput, setRowCountInput] = useState(
+    String(initialSettings.rowCount),
+  );
   const [preset, setPreset] = useState(initialSettings.preset);
   const [transplantingPattern, setTransplantingPattern] =
     useState<TransplantingPattern>(initialSettings.pattern);
 
   const displayInSelectedUnits = (centimeters: number): string =>
     displayMeasurement(
-      unitSystem === "imperial" ? centimetersToInches(centimeters) : centimeters,
+      unitSystem === "imperial"
+        ? centimetersToInches(centimeters)
+        : centimeters,
     );
 
   const [bedWidthInput, setBedWidthInput] = useState(() =>
@@ -78,11 +91,15 @@ function App({ language }: AppProps) {
   const validBedLength = parsePositiveMeasurement(bedLengthInput) !== null;
   const validRowCount = parseRowCount(rowCountInput) !== null;
   const validRowSpacing = parsePositiveMeasurement(rowSpacingInput) !== null;
-  const validTransplantSpacing = parsePositiveMeasurement(transplantSpacingInput) !== null;
+  const validTransplantSpacing =
+    parsePositiveMeasurement(transplantSpacingInput) !== null;
 
   const allInputsValid =
-    validBedWidth && validBedLength && validRowCount &&
-    validRowSpacing && validTransplantSpacing;
+    validBedWidth &&
+    validBedLength &&
+    validRowCount &&
+    validRowSpacing &&
+    validTransplantSpacing;
 
   // Only persist complete, valid configurations. Never save an empty/half-typed input.
   useEffect(() => {
@@ -99,8 +116,15 @@ function App({ language }: AppProps) {
       pattern: transplantingPattern,
     });
   }, [
-    allInputsValid, unitSystem, bedWidthCm, bedLengthCm, rowCount,
-    rowSpacingCm, transplantSpacingCm, preset, transplantingPattern,
+    allInputsValid,
+    unitSystem,
+    bedWidthCm,
+    bedLengthCm,
+    rowCount,
+    rowSpacingCm,
+    transplantSpacingCm,
+    preset,
+    transplantingPattern,
   ]);
 
   const handleReset = () => {
@@ -120,11 +144,7 @@ function App({ language }: AppProps) {
     setTransplantSpacingInput("10");
   };
 
-  const rowsFitOnBed = doRowsFitOnBed(
-    bedWidthCm,
-    rowCount,
-    rowSpacingCm,
-  );
+  const rowsFitOnBed = doRowsFitOnBed(bedWidthCm, rowCount, rowSpacingCm);
 
   const rawTotalPlants =
     allInputsValid && rowsFitOnBed
@@ -138,7 +158,8 @@ function App({ language }: AppProps) {
 
   const validTotalPlants =
     rawTotalPlants !== null &&
-    Number.isSafeInteger(rawTotalPlants) && rawTotalPlants >= 0;
+    Number.isSafeInteger(rawTotalPlants) &&
+    rawTotalPlants >= 0;
 
   const handleBedWidthChange = (value: string) => {
     setBedWidthInput(value);
@@ -159,9 +180,7 @@ function App({ language }: AppProps) {
       setRowSpacingCm(spacingCm);
       setTransplantSpacingCm(spacingCm);
       const displayedSpacing = displayMeasurement(
-        unitSystem === "imperial"
-          ? centimetersToInches(spacingCm)
-          : spacingCm,
+        unitSystem === "imperial" ? centimetersToInches(spacingCm) : spacingCm,
       );
       setRowSpacingInput(displayedSpacing);
       setTransplantSpacingInput(displayedSpacing);
@@ -188,24 +207,40 @@ function App({ language }: AppProps) {
     setUnitSystem(newSystem);
     // Do not replace empty/invalid input with an old stored measurement.
     if (validBedWidth) {
-      setBedWidthInput(displayMeasurement(
-        newSystem === "imperial" ? centimetersToInches(bedWidthCm) : bedWidthCm,
-      ));
+      setBedWidthInput(
+        displayMeasurement(
+          newSystem === "imperial"
+            ? centimetersToInches(bedWidthCm)
+            : bedWidthCm,
+        ),
+      );
     }
     if (validBedLength) {
-      setBedLengthInput(displayMeasurement(
-        newSystem === "imperial" ? centimetersToFeet(bedLengthCm) : centimetersToMeters(bedLengthCm),
-      ));
+      setBedLengthInput(
+        displayMeasurement(
+          newSystem === "imperial"
+            ? centimetersToFeet(bedLengthCm)
+            : centimetersToMeters(bedLengthCm),
+        ),
+      );
     }
     if (validRowSpacing) {
-      setRowSpacingInput(displayMeasurement(
-        newSystem === "imperial" ? centimetersToInches(rowSpacingCm) : rowSpacingCm,
-      ));
+      setRowSpacingInput(
+        displayMeasurement(
+          newSystem === "imperial"
+            ? centimetersToInches(rowSpacingCm)
+            : rowSpacingCm,
+        ),
+      );
     }
     if (validTransplantSpacing) {
-      setTransplantSpacingInput(displayMeasurement(
-        newSystem === "imperial" ? centimetersToInches(transplantSpacingCm) : transplantSpacingCm,
-      ));
+      setTransplantSpacingInput(
+        displayMeasurement(
+          newSystem === "imperial"
+            ? centimetersToInches(transplantSpacingCm)
+            : transplantSpacingCm,
+        ),
+      );
     }
   };
 
@@ -213,9 +248,7 @@ function App({ language }: AppProps) {
     if (!validBedWidth) return;
     const spacingCm = calculateGridSpacing(bedWidthCm, selectedPreset.rowCount);
     const displayedSpacing = displayMeasurement(
-      unitSystem === "imperial"
-        ? centimetersToInches(spacingCm)
-        : spacingCm,
+      unitSystem === "imperial" ? centimetersToInches(spacingCm) : spacingCm,
     );
 
     setPreset(selectedPreset.id);
@@ -236,7 +269,9 @@ function App({ language }: AppProps) {
     setPreset("custom");
     if (parsePositiveMeasurement(value) === null) return;
     setRowSpacingCm(
-      unitSystem === "imperial" ? inchesToCentimeters(Number(value)) : Number(value),
+      unitSystem === "imperial"
+        ? inchesToCentimeters(Number(value))
+        : Number(value),
     );
   };
 
@@ -245,20 +280,15 @@ function App({ language }: AppProps) {
     setPreset("custom");
     if (parsePositiveMeasurement(value) === null) return;
     setTransplantSpacingCm(
-      unitSystem === "imperial" ? inchesToCentimeters(Number(value)) : Number(value),
+      unitSystem === "imperial"
+        ? inchesToCentimeters(Number(value))
+        : Number(value),
     );
   };
 
   return (
     <div className="calculator-page">
       <section className="calculator-card">
-        <div className="calculator-heading">
-          <div>
-            <h1>{t.title}</h1>
-            <p>{t.description}</p>
-          </div>
-        </div>
-
         <div className="section-block bed-details">
           <div className="bed-details-header">
             <div>
@@ -266,30 +296,34 @@ function App({ language }: AppProps) {
               <p>{t.bedDetailsDescription}</p>
             </div>
             <div className="bed-details-actions">
-              <button type="button" className="reset-button" onClick={handleReset}>
+              <button
+                type="button"
+                className="reset-button"
+                onClick={handleReset}
+              >
                 {t.reset}
               </button>
               <div
-              className="unit-toggle"
-              role="group"
-              aria-label={t.measurementSystem}
-            >
-              <button
-                type="button"
-                className={unitSystem === "imperial" ? "active" : ""}
-                aria-pressed={unitSystem === "imperial"}
-                onClick={() => handleUnitChange("imperial")}
+                className="unit-toggle"
+                role="group"
+                aria-label={t.measurementSystem}
               >
-                {t.imperial}
-              </button>
-              <button
-                type="button"
-                className={unitSystem === "metric" ? "active" : ""}
-                aria-pressed={unitSystem === "metric"}
-                onClick={() => handleUnitChange("metric")}
-              >
-                {t.metric}
-              </button>
+                <button
+                  type="button"
+                  className={unitSystem === "imperial" ? "active" : ""}
+                  aria-pressed={unitSystem === "imperial"}
+                  onClick={() => handleUnitChange("imperial")}
+                >
+                  {t.imperial}
+                </button>
+                <button
+                  type="button"
+                  className={unitSystem === "metric" ? "active" : ""}
+                  aria-pressed={unitSystem === "metric"}
+                  onClick={() => handleUnitChange("metric")}
+                >
+                  {t.metric}
+                </button>
               </div>
             </div>
           </div>
@@ -305,14 +339,18 @@ function App({ language }: AppProps) {
                   step="any"
                   value={bedWidthInput}
                   aria-invalid={!validBedWidth}
-                  aria-describedby={!validBedWidth ? "bedWidthError" : undefined}
-                  onChange={(event) =>
-                    handleBedWidthChange(event.target.value)
+                  aria-describedby={
+                    !validBedWidth ? "bedWidthError" : undefined
                   }
+                  onChange={(event) => handleBedWidthChange(event.target.value)}
                 />
                 <span>{unitSystem === "imperial" ? "in" : "cm"}</span>
               </div>
-              {!validBedWidth && <p id="bedWidthError" className="spacing-warning">{t.invalidBedWidth}</p>}
+              {!validBedWidth && (
+                <p id="bedWidthError" className="spacing-warning">
+                  {t.invalidBedWidth}
+                </p>
+              )}
             </div>
             <div className="field">
               <label htmlFor="bedLength">{t.bedLength}</label>
@@ -324,14 +362,20 @@ function App({ language }: AppProps) {
                   step="any"
                   value={bedLengthInput}
                   aria-invalid={!validBedLength}
-                  aria-describedby={!validBedLength ? "bedLengthError" : undefined}
+                  aria-describedby={
+                    !validBedLength ? "bedLengthError" : undefined
+                  }
                   onChange={(event) =>
                     handleBedLengthChange(event.target.value)
                   }
                 />
                 <span>{unitSystem === "imperial" ? "ft" : "m"}</span>
               </div>
-              {!validBedLength && <p id="bedLengthError" className="spacing-warning">{t.invalidBedLength}</p>}
+              {!validBedLength && (
+                <p id="bedLengthError" className="spacing-warning">
+                  {t.invalidBedLength}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -347,9 +391,10 @@ function App({ language }: AppProps) {
                 bedWidthCm,
                 gridPreset.rowCount,
               );
-              const spacing = unitSystem === "imperial"
-                ? centimetersToInches(spacingCm)
-                : spacingCm;
+              const spacing =
+                unitSystem === "imperial"
+                  ? centimetersToInches(spacingCm)
+                  : spacingCm;
               const spacingUnit = unitSystem === "imperial" ? '"' : " cm";
 
               return (
@@ -381,11 +426,12 @@ function App({ language }: AppProps) {
           <div className="section-heading">
             <h2>{t.manualSpacing}</h2>
             <p>{t.manualSpacingDescription}</p>
-            {validBedWidth && validRowCount && validRowSpacing && !rowsFitOnBed && (
-              <p className="spacing-warning">
-                {t.rowsDoNotFit}
-              </p>
-            )}
+            {validBedWidth &&
+              validRowCount &&
+              validRowSpacing &&
+              !rowsFitOnBed && (
+                <p className="spacing-warning">{t.rowsDoNotFit}</p>
+              )}
           </div>
           <div className="spacing-controls">
             <div className="field">
@@ -400,7 +446,11 @@ function App({ language }: AppProps) {
                 aria-describedby={!validRowCount ? "rowCountError" : undefined}
                 onChange={(event) => handleRowsChange(event.target.value)}
               />
-              {!validRowCount && <p id="rowCountError" className="spacing-warning">{t.invalidRowCount}</p>}
+              {!validRowCount && (
+                <p id="rowCountError" className="spacing-warning">
+                  {t.invalidRowCount}
+                </p>
+              )}
             </div>
             <div className="field">
               <label htmlFor="rowSpacing">{t.rowSpacing}</label>
@@ -412,14 +462,20 @@ function App({ language }: AppProps) {
                   step="any"
                   value={rowSpacingInput}
                   aria-invalid={!validRowSpacing}
-                  aria-describedby={!validRowSpacing ? "rowSpacingError" : undefined}
+                  aria-describedby={
+                    !validRowSpacing ? "rowSpacingError" : undefined
+                  }
                   onChange={(event) =>
                     handleRowSpacingChange(event.target.value)
                   }
                 />
                 <span>{unitSystem === "imperial" ? "in" : "cm"}</span>
               </div>
-              {!validRowSpacing && <p id="rowSpacingError" className="spacing-warning">{t.invalidRowSpacing}</p>}
+              {!validRowSpacing && (
+                <p id="rowSpacingError" className="spacing-warning">
+                  {t.invalidRowSpacing}
+                </p>
+              )}
             </div>
             <div className="field">
               <label htmlFor="plantSpacing">{t.inRowSpacing}</label>
@@ -431,14 +487,20 @@ function App({ language }: AppProps) {
                   step="any"
                   value={transplantSpacingInput}
                   aria-invalid={!validTransplantSpacing}
-                  aria-describedby={!validTransplantSpacing ? "plantSpacingError" : undefined}
+                  aria-describedby={
+                    !validTransplantSpacing ? "plantSpacingError" : undefined
+                  }
                   onChange={(event) =>
                     handlePlantSpacingChange(event.target.value)
                   }
                 />
                 <span>{unitSystem === "imperial" ? "in" : "cm"}</span>
               </div>
-              {!validTransplantSpacing && <p id="plantSpacingError" className="spacing-warning">{t.invalidInRowSpacing}</p>}
+              {!validTransplantSpacing && (
+                <p id="plantSpacingError" className="spacing-warning">
+                  {t.invalidInRowSpacing}
+                </p>
+              )}
             </div>
           </div>
           {preset === "custom" && (
@@ -493,12 +555,30 @@ function App({ language }: AppProps) {
             <p className="spacing-warning">{t.countTooLarge}</p>
           )}
           <div className="result-details">
-            <span>{validRowCount ? rowCount : "—"} {t.rows}</span>
             <span>
-              {validRowSpacing ? displayMeasurement(unitSystem === "imperial" ? centimetersToInches(rowSpacingCm) : rowSpacingCm) : "—"} {unitSystem === "imperial" ? "in" : "cm"} {t.rowSpacing.toLowerCase()}
+              {validRowCount ? rowCount : "—"} {t.rows}
             </span>
             <span>
-              {validTransplantSpacing ? displayMeasurement(unitSystem === "imperial" ? centimetersToInches(transplantSpacingCm) : transplantSpacingCm) : "—"} {unitSystem === "imperial" ? "in" : "cm"} {t.inRowSpacing.toLowerCase()}
+              {validRowSpacing
+                ? displayMeasurement(
+                    unitSystem === "imperial"
+                      ? centimetersToInches(rowSpacingCm)
+                      : rowSpacingCm,
+                  )
+                : "—"}{" "}
+              {unitSystem === "imperial" ? "in" : "cm"}{" "}
+              {t.rowSpacing.toLowerCase()}
+            </span>
+            <span>
+              {validTransplantSpacing
+                ? displayMeasurement(
+                    unitSystem === "imperial"
+                      ? centimetersToInches(transplantSpacingCm)
+                      : transplantSpacingCm,
+                  )
+                : "—"}{" "}
+              {unitSystem === "imperial" ? "in" : "cm"}{" "}
+              {t.inRowSpacing.toLowerCase()}
             </span>
           </div>
         </section>
